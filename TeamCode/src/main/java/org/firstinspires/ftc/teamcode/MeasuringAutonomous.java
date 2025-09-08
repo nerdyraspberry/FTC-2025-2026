@@ -28,9 +28,9 @@ public class MeasuringAutonomous extends LinearOpMode {
 
         drivetrain
                 .move(0.0, 0.0)
-                .rotate(0.3)
+                .rotate(0.6)
                 .apply();
-        sleep(1000);
+        sleep(500);
         drivetrain.move(0.0, 0.0)
                 .rotate(0.0)
                 .apply();
