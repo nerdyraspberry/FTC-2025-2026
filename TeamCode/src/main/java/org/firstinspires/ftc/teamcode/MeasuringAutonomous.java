@@ -40,11 +40,25 @@ public class MeasuringAutonomous extends LinearOpMode {
             telemetry.addData("angle", pd.getAngle());
             telemetry.update();
 
-            if (pd.getAngle() >= 80.0 && pd.getAngle() <= 90.0)
+            if (pd.getAngle() >= 89.0 && pd.getAngle() <= 90.0) {
+                sleep(10);
+
+                if (pd.getAngle() > 90.5) {
+                    drivetrain.rotate(-.05)
+                            .apply();
+                    sleep(200);
+                }
+
                 break;
+            }
         }
+
         drivetrain.move(0.0, 0.0)
                 .rotate(0.0)
                 .apply();
+
+        telemetry.addData("angle", pd.getAngle());
+        telemetry.update();
+        sleep(2000);
     }
 }
