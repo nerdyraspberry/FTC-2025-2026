@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.kowalski.control.ControlUtils;
 import org.firstinspires.ftc.teamcode.kowalski.control.PositionDeterminer;
@@ -12,12 +13,16 @@ public class BaseTeleOp extends LinearOpMode {
     private MecanumDrive drivetrain;
     private PositionDeterminer pd;
 
+    private DcMotor shootingMotor;
+
     @Override
     public void runOpMode() {
         drivetrain = SharedThingemajigs.makeMecanum(hardwareMap);
 
         pd = new PositionDeterminer(hardwareMap);
         pd.initialize();
+
+        shootingMotor = hardwareMap.get(DcMotor.class, "shootingMotor");
 
         waitForStart();
 
@@ -38,6 +43,9 @@ public class BaseTeleOp extends LinearOpMode {
                 sleep(250);
             }
             if (gamepad1.dpad_left) speed = 1.0;
+
+            // Shooting
+            shootingMotor.setPower(gamepad1.x ? 1.0 : 0.0);
         }
     }
 }

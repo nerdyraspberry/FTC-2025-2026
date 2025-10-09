@@ -12,16 +12,17 @@ public class MeasuringAutonomous extends LinearOpMode {
     private PositionDeterminer pd;
 
     private void waitUntilRotation(double degrees, double margin, double direction) {
-        // Stop before the actual angle; robot will spin further due to physics or something
         System.out.println("== BEGIN ==");
+        // Make sure the angles are at the proper values relative to each other/
         double startAngle = pd.getAngle();
         if (direction > 0 && degrees < startAngle)
             degrees += 360.0;
         else if (direction < 0 && degrees > startAngle)
             degrees -= 360.0;
 
-        while (direction > 0 ? pd.getAngle() < degrees - margin
-                            : pd.getAngle() > degrees + margin) {
+        // Stop before the actual angle; robot will spin further due to physics or something
+        double angle;
+        do { // using a do-while loop because angle isn't set the first time
             System.out.print("actual angle "); System.out.println(pd.getAngle());
             System.out.print("end angle "); System.out.println(degrees);
 
@@ -29,15 +30,20 @@ public class MeasuringAutonomous extends LinearOpMode {
                 System.out.println("OH GOD OH FUCK PLEASE NOT AGAIN!!!");
                 return;
             }
-        }
+
+            angle = pd.getAngle();
+        } while (direction > 0 ? angle < degrees - margin
+                : angle > degrees + margin);
     }
     private void rotateBy(double degrees, double turnRate) {
-        final double ALLOWED_MARGIN = 18.0;
+        final double ALLOWED_MARGIN = 25.0;
 
         // Calculate the begin and end rotation
+        pd.initialize();
         double startAngle = pd.getAngle();
         // Desired end angle is angle-at-start + amount*direction-of-rotation
         double endAngle = (startAngle + degrees*Math.signum(turnRate)) % 360;
+        if (endAngle < 0.0) endAngle += 360.0;
 
         // Start the motors
         drivetrain.move(0.0, 0.0)
@@ -51,6 +57,12 @@ public class MeasuringAutonomous extends LinearOpMode {
 
         // Stop the motors
         drivetrain.rotate(0.0).apply();
+    }
+
+    private void moveFor(double x, double y, long delay) {
+        drivetrain.move(x,y).apply();
+        sleep(delay);
+        drivetrain.move(0, 0).apply();
     }
 
     @Override
