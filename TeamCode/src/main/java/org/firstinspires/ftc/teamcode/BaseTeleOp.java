@@ -26,7 +26,7 @@ public class BaseTeleOp extends LinearOpMode {
 
         waitForStart();
 
-        double speed = 1.0;
+        double speed = 0.5;
         while (opModeIsActive()) {
             // Move
             drivetrain.move(speed * gamepad1.left_stick_x, -speed * gamepad1.left_stick_y)
@@ -45,7 +45,7 @@ public class BaseTeleOp extends LinearOpMode {
             if (gamepad1.dpad_left) speed = 1.0;
 
             // Shooting
-            shootingMotor.setPower(gamepad1.x ? 1.0 : 0.0);
+            shootingMotor.setPower(gamepad1.x ? - 1.0 : 0.0);
         }
     }
 }
