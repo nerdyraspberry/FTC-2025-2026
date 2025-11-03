@@ -15,6 +15,9 @@ public class BaseTeleOp extends LinearOpMode {
 
     private DcMotor shootingMotor;
 
+    double normalSpeed =1.0;
+    double safeSpeed = 0.3;
+
     @Override
     public void runOpMode() {
         drivetrain = SharedThingemajigs.makeMecanum(hardwareMap);
@@ -26,7 +29,7 @@ public class BaseTeleOp extends LinearOpMode {
 
         waitForStart();
 
-        double speed = 0.5;
+        double speed = safeSpeed;
         while (opModeIsActive()) {
             // Move
             drivetrain.move(speed * gamepad1.left_stick_x, -speed * gamepad1.left_stick_y)
@@ -42,7 +45,8 @@ public class BaseTeleOp extends LinearOpMode {
                 speed -= .01;
                 sleep(250);
             }
-            if (gamepad1.dpad_left) speed = 1.0;
+            if (gamepad1.dpad_left) speed = safeSpeed;
+
 
             // Shooting
             shootingMotor.setPower(gamepad1.x ? - 1.0 : 0.0);
