@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.kowalski.control.ControlUtils;
 import org.firstinspires.ftc.teamcode.kowalski.control.PositionDeterminer;
@@ -15,8 +16,10 @@ public class BaseTeleOp extends LinearOpMode {
 
     private DcMotor shootingMotor;
 
+ //   private Servo releasingServo;
+
     double normalSpeed =1.0;
-    double safeSpeed = 0.3;
+    double safeSpeed = 0.5;
 
     @Override
     public void runOpMode() {
@@ -29,7 +32,7 @@ public class BaseTeleOp extends LinearOpMode {
 
         waitForStart();
 
-        double speed = safeSpeed;
+        double speed = normalSpeed;
         while (opModeIsActive()) {
             // Move
             drivetrain.move(speed * gamepad1.left_stick_x, -speed * gamepad1.left_stick_y)
@@ -45,11 +48,12 @@ public class BaseTeleOp extends LinearOpMode {
                 speed -= .01;
                 sleep(250);
             }
-            if (gamepad1.dpad_left) speed = safeSpeed;
+            if (gamepad1.dpad_left) speed = normalSpeed;
 
 
             // Shooting
-            shootingMotor.setPower(gamepad1.x ? - 1.0 : 0.0);
+            shootingMotor.setPower(gamepad1.x ? -1.0 : 0.0);
+          //  releasingServo.setPosition(gamepad1.y ? 0.5:0.0);
         }
     }
 }
