@@ -17,11 +17,13 @@ public class CommonAutonomous {
         MecanumDrive drivetrain = SharedThingemajigs.makeMecanum(opMode.hardwareMap);
         DcMotor shootingMotor = opMode.hardwareMap.get(DcMotor.class, "shootingMotor");
 
+        opMode.waitForStart();
+
         if (startPos == StartingPosition.TRIANGLE) {
             // Move out of the triangle
-            drivetrain.move(0.0, 1.0)
+            drivetrain.move(0.0, 0.5)
                     .apply();
-            opMode.sleep(1000);
+            opMode.sleep(500);
             drivetrain.move(0, 0).apply();
         } else if (startPos == StartingPosition.SCORING_AREA) {
             // Assume we are in the right position to score, just run the ball-shooting motor.
@@ -30,10 +32,10 @@ public class CommonAutonomous {
             shootingMotor.setPower(0.0);
 
             // Back out of the scoring zone
-            drivetrain.move(0.0, -1.0)
-                    .apply();
-            opMode.sleep(1000);
-            drivetrain.move(0, 0).apply();
+//            drivetrain.move(0.0, -1.0)
+//                    .apply();
+//            opMode.sleep(1000);
+//            drivetrain.move(0, 0).apply();
         }
     }
 }
