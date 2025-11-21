@@ -1,11 +1,18 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.kowalski.systems.MecanumDrive;
 import org.firstinspires.ftc.teamcode.kowalski.systems.MecanumMotor;
 
 public class SharedThingemajigs {
+    static final double servoGateClose = 0.3;
+    static final double servoGateOpen = 0.52;
+
+    static final double shootingMotorOnSpeed = 1.0;
+
     /** Creates a MecanumDrive using the configuration for this season;
      * this prevents the signs and motor names from having to be duplicated across
      * OpModes, which is hard to maintain.
@@ -40,5 +47,14 @@ public class SharedThingemajigs {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
+    }
+
+    public static void autoShoot(DcMotor shootingMotor, Servo ballHoldingServo) {
+        shootingMotor.setPower(shootingMotorOnSpeed);
+        sleep(1000);
+        ballHoldingServo.setPosition(servoGateOpen);
+        sleep(3000);
+        ballHoldingServo.setPosition(servoGateClose);
+        shootingMotor.setPower(0.0);
     }
 }

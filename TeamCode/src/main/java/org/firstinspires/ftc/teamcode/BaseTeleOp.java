@@ -18,17 +18,13 @@ public class BaseTeleOp extends LinearOpMode {
     private Servo ballHoldingServo;
 
     // VARIABLES
+    // NOTE: some variables have been moved to SharedThingemajigs.java
     final double speedChangeIncrement = .05;
     double maxSpeed = 1.0;
     double speed;
     boolean safeMode = false;
 
     final int speedChangeDebounce = 250;
-
-    final double servoGateClose = 0.3;
-    final double servoGateOpen = 0.52;
-
-    final double shootingMotorOnSpeed = 1.0;
 
     final double delayBeforeLatchCanOpen = .5;
     // END VARIABLES
@@ -105,7 +101,7 @@ public class BaseTeleOp extends LinearOpMode {
             if (gamepad1.dpad_left) speed = maxSpeed;
 
             if (!safeMode) {
-                shootingMotor.setPower((gamepad1.x || gamepad1.square) ? shootingMotorOnSpeed : 0.0);
+                shootingMotor.setPower((gamepad1.x || gamepad1.square) ? SharedThingemajigs.shootingMotorOnSpeed : 0.0);
                 // Book-keeping: will prevent servo from opening if motor is not up to speed
                 if (gamepad1.x && !mayOpenLatch) {
                     mayOpenLatch = true;
@@ -115,23 +111,17 @@ public class BaseTeleOp extends LinearOpMode {
                 }
                 // Book-keeping: check the spinning speed of the motor
                 // TODO: figure out if and how this may be used
-                //telemetry.addData("Delta Pos", getMotorDelta());
+                telemetry.addData("Delta Pos", getMotorDelta());
 
                 double deltaOpen = getRuntime() - lastSpinupTime;
                 telemetry.addData("Pressing Y?", gamepad1.y);
                 telemetry.addData("Allowed to open?", mayOpenLatch && deltaOpen > delayBeforeLatchCanOpen);
                 telemetry.addData("Will open?", (gamepad1.y || gamepad1.triangle) && (mayOpenLatch && deltaOpen > delayBeforeLatchCanOpen));
                 telemetry.update();
-                ballHoldingServo.setPosition((gamepad1.y || gamepad1.triangle) && (mayOpenLatch && deltaOpen > delayBeforeLatchCanOpen) ? servoGateOpen : servoGateClose);
+                ballHoldingServo.setPosition((gamepad1.y || gamepad1.triangle) && (mayOpenLatch && deltaOpen > delayBeforeLatchCanOpen) ? SharedThingemajigs.servoGateOpen : SharedThingemajigs.servoGateClose);
 
-                if (gamepad1.left_bumper) {
-                    shootingMotor.setPower(shootingMotorOnSpeed);
-                    sleep((long)(delayBeforeLatchCanOpen * 1000.0));
-                    ballHoldingServo.setPosition(servoGateOpen);
-                    sleep(3000);
-                    ballHoldingServo.setPosition(servoGateClose);
-                    shootingMotor.setPower(0.0);
-                }
+                if (gamepad1.left_bumper)
+                    SharedThingemajigs.autoShoot(shootingMotor, ballHoldingServo);
             } else {
                 telemetry.addData("SAFE MODE", "ENABLED");
                 telemetry.update();
