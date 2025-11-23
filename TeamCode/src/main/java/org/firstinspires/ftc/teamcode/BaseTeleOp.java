@@ -17,6 +17,8 @@ public class BaseTeleOp extends LinearOpMode {
     private DcMotor shootingMotor;
     private Servo ballHoldingServo;
 
+    private BallAnalyser ballAnalyser;
+
     // VARIABLES
     // NOTE: some variables have been moved to SharedThingemajigs.java
     final double speedChangeIncrement = .05;
@@ -28,35 +30,6 @@ public class BaseTeleOp extends LinearOpMode {
 
     final double delayBeforeLatchCanOpen = .5;
     // END VARIABLES
-
-    // NOTE: this code is not YET useful, but it may be? I'm not sure!
-    // When changing the cache size, make sure to change the amount of zeroes in the array.
-    final int motorCacheSize = 4;
-    int[] motorDeltaCache = {0, 0, 0, 0};
-    int prevMotorPos = 0;
-
-    private void _shiftCacheData() {
-        for (int i = 0; i < motorCacheSize - 1; i++)
-            motorDeltaCache[i + 1] = motorDeltaCache[i];
-    }
-    private double getMotorDelta() {
-        // Calculate motor delta
-        int motorPos = shootingMotor.getCurrentPosition();
-        int newDelta = motorPos - prevMotorPos;
-        prevMotorPos = motorPos;
-
-        // Store in cache
-        _shiftCacheData();
-        motorDeltaCache[0] = newDelta;
-
-        // Perform averaging
-        double avgMotorDelta = 0;
-        for (int i = 0; i < motorCacheSize; i++)
-            avgMotorDelta += (double)motorDeltaCache[i];
-        avgMotorDelta /= 4;
-
-        return avgMotorDelta;
-    }
 
     @Override
     public void runOpMode() {
@@ -70,6 +43,8 @@ public class BaseTeleOp extends LinearOpMode {
 
         ballHoldingServo.setDirection(Servo.Direction.REVERSE);
 
+        ballAnalyser = new BallAnalyser(.01, shootingMotor);
+
         // Allow setting safe mode
         if (gamepad1.right_bumper) {
             maxSpeed = 0.5;
@@ -78,11 +53,11 @@ public class BaseTeleOp extends LinearOpMode {
         speed = maxSpeed;
 
         waitForStart();
+        ballHoldingServo.setPosition(SharedThingemajigs.servoGateClose);
 
         boolean mayOpenLatch = false;
         double lastSpinupTime = 0.0;
 
-        double lastSampleTime = 0; double maxSpeedSample = 22.0; // Ugly hardcode; TODO: good way to measure max speed without outliers?
         boolean prevXState = false, prevYState = false;
         while (opModeIsActive()) {
             // Move
@@ -121,36 +96,16 @@ public class BaseTeleOp extends LinearOpMode {
 
                 double deltaOpen = getRuntime() - lastSpinupTime;
                 // Book-keeping: check the spinning speed of the motor
-                if (getRuntime() - lastSampleTime > 0.01) {
-                    double delta = getMotorDelta();
-                    //if (delta > maxSpeedSample)
-
-                    // The value is only sensible if the motor has ran, and has been up to speed at least once:
-                    // otherwise, comparing percentages does not make sense.
-                    boolean sensible = lastSpinupTime > 0.0 && deltaOpen > delayBeforeLatchCanOpen;
-
-                    double percentOfMax = delta / maxSpeedSample * 100.0;
-//                    System.out.print("Delta: ");
-//                    System.out.print(delta);
-//                    System.out.print(" / ");
-//                    System.out.print(maxSpeedSample);
-//                    System.out.print(" (");
-//                    System.out.print(percentOfMax);
-//                    System.out.println(")");
-
-                    // Do not say there is a ball if the motor is slowing down because the operator has told it to.
-                    boolean hasPassingBall = 10.0 < percentOfMax && percentOfMax < 70.0 && xState;
-
-                    //if (!sensible) System.out.println("Kowalski cannot tell if there is a ball.");
-                    if (hasPassingBall && sensible) System.out.println("Kowalski thinks there's a ball!");
-                    //else System.out.println("Kowalski doesn't think there's a ball.");
-
-                    lastSampleTime = getRuntime();
-                }
+                // The value is only sensible if the motor has ran, and has been up to speed at least once:
+                // otherwise, comparing percentages does not make sense.
+                boolean hasBall = ballAnalyser.delaySample(getRuntime());
+                boolean sensible = lastSpinupTime > 0.0 && deltaOpen > delayBeforeLatchCanOpen;
 
                 telemetry.addData("Pressing Y?", yState);
                 telemetry.addData("Allowed to open?", mayOpenLatch && deltaOpen > delayBeforeLatchCanOpen);
                 telemetry.addData("Will open?", yState && (mayOpenLatch && deltaOpen > delayBeforeLatchCanOpen));
+                telemetry.addData("HAS BALL?", hasBall && sensible);
+
                 telemetry.update();
                 if (yState != prevYState) {
                     ballHoldingServo.setPosition(yState && (mayOpenLatch && deltaOpen > delayBeforeLatchCanOpen) ? SharedThingemajigs.servoGateOpen : SharedThingemajigs.servoGateClose);
@@ -162,8 +117,10 @@ public class BaseTeleOp extends LinearOpMode {
                     prevYState = yState;
                 }
 
-                if (gamepad1.left_bumper)
+                if (gamepad1.left_bumper) {
+                    drivetrain.move(0, 0).rotate(0).apply();
                     SharedThingemajigs.autoShoot(shootingMotor, ballHoldingServo);
+                }
             } else {
                 telemetry.addData("SAFE MODE", "ENABLED");
                 telemetry.update();

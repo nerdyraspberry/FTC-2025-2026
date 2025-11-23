@@ -21,21 +21,33 @@ public class CommonAutonomous {
 
         opMode.waitForStart();
 
+        ballHoldingServo.setPosition(SharedThingemajigs.servoGateClose);
+
         if (startPos == StartingPosition.TRIANGLE) {
-            // Move out of the triangle
-            drivetrain.move(0.0, 0.5)
+            // Move out of the triangle, into the scoring area
+            drivetrain.move(0.0, 1.0)
                     .apply();
-            opMode.sleep(500);
+            opMode.sleep(1200);
             drivetrain.move(0, 0).apply();
+            drivetrain.move(0.0 , 0.35)
+                    .rotate(0.4)
+                    .apply();
+            opMode.sleep(1250);
+            drivetrain.move(0, 0).rotate(0).apply();
+
+            // Bombs away!
+            SharedThingemajigs.autoShoot(shootingMotor, ballHoldingServo);
         } else if (startPos == StartingPosition.SCORING_AREA) {
             // Assume we are in the right position to score, just run the ball-shooting motor.
             SharedThingemajigs.autoShoot(shootingMotor, ballHoldingServo);
 
             // Back out of the scoring zone
-            drivetrain.move(0.0, -1.0)
+            drivetrain.move(alliance == Alliance.BLUE ? -0.6 : 1.0, alliance == Alliance.BLUE ? -1.0 : -0.6)
                     .apply();
-            opMode.sleep(1000);
+            opMode.sleep(1500);
             drivetrain.move(0, 0).apply();
         }
+
+        ballHoldingServo.setPosition(SharedThingemajigs.servoGateClose);
     }
 }
