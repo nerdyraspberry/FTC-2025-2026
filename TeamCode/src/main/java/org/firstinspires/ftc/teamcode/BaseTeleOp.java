@@ -76,52 +76,52 @@ public class BaseTeleOp extends LinearOpMode {
             }
             if (gamepad1.dpad_left) speed = maxSpeed;
 
-            if (!safeMode) {
-                boolean xState = gamepad1.x || gamepad1.square;
-                boolean yState = gamepad1.y || gamepad1.triangle;
-                if (xState != prevXState) {
-                    shootingMotor.setPower(xState ? SharedThingemajigs.shootingMotorOnSpeed : 0.0);
-                    if (xState) System.out.println("Started motor spin!");
-                    else System.out.println("Stopped motor spin!");
 
-                    prevXState = xState;
-                }
-                // Book-keeping: will prevent servo from opening if motor is not up to speed
-                if (xState && !mayOpenLatch) {
-                    mayOpenLatch = true;
-                    lastSpinupTime = getRuntime();
-                } else if (!xState && mayOpenLatch) {
-                    mayOpenLatch = false;
-                }
+            boolean xState = gamepad1.x || gamepad1.square;
+            boolean yState = gamepad1.y || gamepad1.triangle;
+            if (xState != prevXState) {
+                shootingMotor.setPower(xState ? SharedThingemajigs.shootingMotorOnSpeed : 0.0);
+                if (xState) System.out.println("Started motor spin!");
+                else System.out.println("Stopped motor spin!");
 
-                double deltaOpen = getRuntime() - lastSpinupTime;
-                // Book-keeping: check the spinning speed of the motor
-                // The value is only sensible if the motor has ran, and has been up to speed at least once:
-                // otherwise, comparing percentages does not make sense.
-                boolean hasBall = ballAnalyser.delaySample(getRuntime());
-                boolean sensible = lastSpinupTime > 0.0 && deltaOpen > delayBeforeLatchCanOpen;
+                prevXState = xState;
+            }
+            // Book-keeping: will prevent servo from opening if motor is not up to speed
+            if (xState && !mayOpenLatch) {
+                mayOpenLatch = true;
+                lastSpinupTime = getRuntime();
+            } else if (!xState && mayOpenLatch) {
+                mayOpenLatch = false;
+            }
 
-                telemetry.addData("Pressing Y?", yState);
-                telemetry.addData("Allowed to open?", mayOpenLatch && deltaOpen > delayBeforeLatchCanOpen);
-                telemetry.addData("Will open?", yState && (mayOpenLatch && deltaOpen > delayBeforeLatchCanOpen));
-                telemetry.addData("HAS BALL?", hasBall && sensible);
+            double deltaOpen = getRuntime() - lastSpinupTime;
+            // Book-keeping: check the spinning speed of the motor
+            // The value is only sensible if the motor has ran, and has been up to speed at least once:
+            // otherwise, comparing percentages does not make sense.
+            boolean hasBall = ballAnalyser.delaySample(getRuntime());
+            boolean sensible = lastSpinupTime > 0.0 && deltaOpen > delayBeforeLatchCanOpen;
 
-                telemetry.update();
-                if (yState != prevYState) {
-                    ballHoldingServo.setPosition(yState && (mayOpenLatch && deltaOpen > delayBeforeLatchCanOpen) ? SharedThingemajigs.servoGateOpen : SharedThingemajigs.servoGateClose);
-                    if (mayOpenLatch && deltaOpen > delayBeforeLatchCanOpen) {
-                        if (yState) System.out.println("Opening hatch!");
-                        else System.out.println("Closing hatch!");
-                    }
+            telemetry.addData("Pressing Y?", yState);
+            telemetry.addData("Allowed to open?", mayOpenLatch && deltaOpen > delayBeforeLatchCanOpen);
+            telemetry.addData("Will open?", yState && (mayOpenLatch && deltaOpen > delayBeforeLatchCanOpen));
+            telemetry.addData("HAS BALL?", hasBall && sensible);
 
-                    prevYState = yState;
+            telemetry.update();
+            if (yState != prevYState) {
+                ballHoldingServo.setPosition(yState && (mayOpenLatch && deltaOpen > delayBeforeLatchCanOpen) ? SharedThingemajigs.servoGateOpen : SharedThingemajigs.servoGateClose);
+                if (mayOpenLatch && deltaOpen > delayBeforeLatchCanOpen) {
+                    if (yState) System.out.println("Opening hatch!");
+                    else System.out.println("Closing hatch!");
                 }
 
-                if (gamepad1.left_bumper) {
-                    drivetrain.move(0, 0).rotate(0).apply();
-                    SharedThingemajigs.autoShoot(shootingMotor, ballHoldingServo);
-                }
-            } else {
+                prevYState = yState;
+            }
+
+            if (gamepad1.left_bumper) {
+                drivetrain.move(0, 0).rotate(0).apply();
+                SharedThingemajigs.autoShoot(shootingMotor, ballHoldingServo);
+            }
+            if (safeMode) {
                 telemetry.addData("SAFE MODE", "ENABLED");
                 telemetry.update();
             }
