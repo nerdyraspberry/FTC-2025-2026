@@ -61,7 +61,7 @@ public class SharedThingemajigs {
 //            if (hasBall || opMode.getRuntime() - startTime > 3.0)
 //                break;
 //        }
-        sleep(2000);
+        sleep(2200);
         ballHoldingServo.setPosition(servoGateClose);
         shootingMotor.setPower(0.0);
     }
