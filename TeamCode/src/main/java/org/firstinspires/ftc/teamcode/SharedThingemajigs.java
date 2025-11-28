@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -12,7 +11,7 @@ public class SharedThingemajigs {
     public static final double servoGateClose = 0.3;
     public static final double servoGateOpen = 0.52;
 
-    static final double shootingMotorOnSpeed = 0.73;
+    static final double shootingMotorOnSpeed = 0.80;
 
     /** Creates a MecanumDrive using the configuration for this season;
      * this prevents the signs and motor names from having to be duplicated across
@@ -53,7 +52,7 @@ public class SharedThingemajigs {
     public static void autoShoot(DcMotor shootingMotor, Servo ballHoldingServo) {
 
         shootingMotor.setPower(shootingMotorOnSpeed);
-        sleep(1000);
+        sleep(1300);
         ballHoldingServo.setPosition(servoGateOpen);
 //        double startTime = opMode.getRuntime();
 //        while (true) {
