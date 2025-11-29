@@ -76,7 +76,6 @@ public class BaseTeleOp extends LinearOpMode {
             }
             if (gamepad1.dpad_left) speed = maxSpeed;
 
-
             boolean xState = gamepad1.x || gamepad1.square;
             boolean yState = gamepad1.y || gamepad1.triangle;
             if (xState != prevXState) {
@@ -119,7 +118,7 @@ public class BaseTeleOp extends LinearOpMode {
 
             if (gamepad1.left_bumper) {
                 drivetrain.move(0, 0).rotate(0).apply();
-                SharedThingemajigs.autoShoot(shootingMotor, ballHoldingServo);
+                SharedThingemajigs.autoShoot(shootingMotor, ballHoldingServo, this, true);
             }
             if (safeMode) {
                 telemetry.addData("SAFE MODE", "ENABLED");
